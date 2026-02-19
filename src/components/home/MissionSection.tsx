@@ -5,6 +5,8 @@ interface MissionSectionProps {
   title: string
   body: string
   stats: { number: string; label: string }[]
+  nextGenImage?: string
+  marqueeItems?: string[]
 }
 
 const PROGRAMS = [
@@ -34,7 +36,16 @@ const PROGRAMS = [
   },
 ]
 
-export function MissionSection({ title, body, stats }: MissionSectionProps) {
+const DEFAULT_MARQUEE = [
+  'Empowering Chicago Youth', 'Media Arts Education', 'Creative Workforce Development',
+  'Trauma-Informed Production', 'Community Impact', 'Violence Prevention', 'Safe Creative Spaces',
+]
+
+const DEFAULT_NEXT_GEN_IMAGE = 'https://images.unsplash.com/photo-1598520106830-a4c46c286093?w=800&q=80'
+
+export function MissionSection({ title, body, stats, nextGenImage, marqueeItems }: MissionSectionProps) {
+  const marquee = marqueeItems?.length ? marqueeItems : DEFAULT_MARQUEE
+
   return (
     <>
       {/* Programs Section */}
@@ -68,7 +79,7 @@ export function MissionSection({ title, body, stats }: MissionSectionProps) {
             </div>
             <div className="relative h-[400px] rounded-2xl overflow-hidden">
               <Image
-                src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800&q=80"
+                src={nextGenImage || DEFAULT_NEXT_GEN_IMAGE}
                 alt="Youth learning music production at audio console"
                 fill
                 className="object-cover"
@@ -136,20 +147,12 @@ export function MissionSection({ title, body, stats }: MissionSectionProps) {
         <div className="marquee-track">
           {[...Array(2)].map((_, i) => (
             <div key={i} className="flex items-center gap-8 px-4 whitespace-nowrap text-sm font-bold text-white/80 tracking-wider uppercase">
-              <span>Empowering Chicago Youth</span>
-              <span className="text-[#0033FF]">&bull;</span>
-              <span>Media Arts Education</span>
-              <span className="text-[#0033FF]">&bull;</span>
-              <span>Creative Workforce Development</span>
-              <span className="text-[#0033FF]">&bull;</span>
-              <span>Trauma-Informed Production</span>
-              <span className="text-[#0033FF]">&bull;</span>
-              <span>Community Impact</span>
-              <span className="text-[#0033FF]">&bull;</span>
-              <span>Violence Prevention</span>
-              <span className="text-[#0033FF]">&bull;</span>
-              <span>Safe Creative Spaces</span>
-              <span className="text-[#0033FF]">&bull;</span>
+              {marquee.map((item, j) => (
+                <span key={j}>
+                  {item}
+                  <span className="text-[#0033FF] ml-8">&bull;</span>
+                </span>
+              ))}
             </div>
           ))}
         </div>

@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { DonationTable } from '@/components/admin/DonationTable'
+import { AdminSearch } from '@/components/admin/AdminSearch'
 import { formatCurrency } from '@/lib/utils'
 import Link from 'next/link'
 import { Plus, Download } from 'lucide-react'
@@ -28,11 +30,11 @@ async function getDonations(source?: string, status?: string) {
 }
 
 interface PageProps {
-  searchParams: Promise<{ source?: string; status?: string }>
+  searchParams: Promise<{ source?: string; status?: string; q?: string }>
 }
 
 export default async function DonationsPage({ searchParams }: PageProps) {
-  const { source, status } = await searchParams
+  const { source, status, q } = await searchParams
   const { donations, count, total } = await getDonations(source, status)
 
   const filters = [
@@ -64,6 +66,11 @@ export default async function DonationsPage({ searchParams }: PageProps) {
           </Button>
         </div>
       </div>
+
+      {/* Search */}
+      <Suspense>
+        <AdminSearch placeholder="Search by donor name, email, or notes..." />
+      </Suspense>
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3 bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
@@ -102,7 +109,18 @@ export default async function DonationsPage({ searchParams }: PageProps) {
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <DonationTable donations={donations as Parameters<typeof DonationTable>[0]['donations']} />
+        <DonationTable
+          donations={(q
+            ? donations.filter((d) => {
+                const search = q.toLowerCase()
+                const name = `${d.donor?.first_name ?? ''} ${d.donor?.last_name ?? ''}`.toLowerCase()
+                const email = (d.donor?.email ?? '').toLowerCase()
+                const notes = (d.notes ?? '').toLowerCase()
+                return name.includes(search) || email.includes(search) || notes.includes(search)
+              })
+            : donations
+          ) as Parameters<typeof DonationTable>[0]['donations']}
+        />
       </div>
     </div>
   )

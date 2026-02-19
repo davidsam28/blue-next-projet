@@ -40,7 +40,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
       contact_phone: settings.contact_phone ?? '',
       org_address: settings.org_address ?? '',
       org_ein: settings.org_ein ?? '',
-      org_name: settings.org_name ?? 'Blue Next Projet',
+      org_name: settings.org_name ?? 'Blue Next Project',
     },
   })
 

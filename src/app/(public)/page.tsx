@@ -51,14 +51,18 @@ export default async function HomePage() {
         subheadline={contentMap.hero_subheadline ?? 'Through trauma-informed training and career-focused programs, Blue Next Project equips Chicago youth with technical skills and industry guidance to tell their own stories and thrive in the digital media world.'}
         ctaPrimary={contentMap.hero_cta_primary ?? 'Partner With Us'}
         ctaSecondary={contentMap.hero_cta_secondary ?? 'Our Programs'}
+        heroImage={contentMap.hero_image}
       />
       <MissionSection
         title={contentMap.mission_title ?? 'Our Programs'}
         body={contentMap.mission_body ?? 'Advancing Chicago youth through media arts and audio production.'}
         stats={stats}
+        nextGenImage={contentMap.next_gen_image}
+        marqueeItems={contentMap.marquee_text?.split(',').map((s: string) => s.trim()).filter(Boolean)}
       />
       <DonateCTA
         impactNote={contentMap.impact_note ?? 'We collaborate with grant funders, foundations, and community organizations to expand opportunities in media arts.'}
+        partnerImage={contentMap.partner_image}
       />
     </>
   )

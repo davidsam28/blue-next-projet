@@ -1,8 +1,9 @@
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
 import { formatDateShort } from '@/lib/utils'
-import { Users, Mail, Phone, Search } from 'lucide-react'
+import { Users, Mail, Phone } from 'lucide-react'
+import { AdminSearch } from '@/components/admin/AdminSearch'
 
 export const metadata: Metadata = { title: 'Donors — Admin' }
 
@@ -17,22 +18,43 @@ async function getDonors() {
   return { donors: data ?? [], count: count ?? 0 }
 }
 
-export default async function DonorsPage() {
+interface PageProps {
+  searchParams: Promise<{ q?: string }>
+}
+
+export default async function DonorsPage({ searchParams }: PageProps) {
+  const { q } = await searchParams
   const { donors, count } = await getDonors()
+
+  const filtered = q
+    ? donors.filter((d) => {
+        const search = q.toLowerCase()
+        const name = `${d.first_name} ${d.last_name}`.toLowerCase()
+        const email = (d.email ?? '').toLowerCase()
+        const phone = (d.phone ?? '').toLowerCase()
+        return name.includes(search) || email.includes(search) || phone.includes(search)
+      })
+    : donors
 
   return (
     <div className="space-y-6 max-w-7xl">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Donors</h1>
-          <p className="text-gray-500 text-sm mt-1">{count} total donors</p>
+          <p className="text-gray-500 text-sm mt-1">{count} total donors{q ? ` (${filtered.length} matching)` : ''}</p>
         </div>
       </div>
 
-      {donors.length === 0 ? (
+      <Suspense>
+        <AdminSearch placeholder="Search by name, email, or phone..." />
+      </Suspense>
+
+      {filtered.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-100 p-16 text-center shadow-sm">
           <Users className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">No donors yet. Donors are created automatically when donations are received.</p>
+          <p className="text-gray-500">
+            {q ? `No donors matching "${q}"` : 'No donors yet. Donors are created automatically when donations are received.'}
+          </p>
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
@@ -47,7 +69,7 @@ export default async function DonorsPage() {
               </tr>
             </thead>
             <tbody>
-              {donors.map((donor) => {
+              {filtered.map((donor) => {
                 const completedDonations = (donor.donation_records as { amount: number; status: string }[] ?? [])
                   .filter((d) => d.status === 'completed')
                 const totalGiven = completedDonations.reduce((s, d) => s + Number(d.amount), 0)

@@ -2,10 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
-import { Menu, X, Heart } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Menu, X, Heart, Settings, LogOut, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 const NAV_LINKS = [
   { href: '/', label: 'Home' },
@@ -17,6 +19,21 @@ const NAV_LINKS = [
 export function Navbar() {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => setUser(data.user))
+  }, [])
+
+  async function handleSignOut() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    setUser(null)
+    setUserMenuOpen(false)
+    window.location.href = '/'
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-black/95 backdrop-blur-md border-b border-white/5">
@@ -50,13 +67,59 @@ export function Navbar() {
             ))}
           </nav>
 
-          {/* Get Involved CTA */}
+          {/* Right side: CTA + User menu */}
           <div className="hidden md:flex items-center gap-3">
             <Button asChild size="sm" className="bg-[#0033FF] hover:bg-[#0033FF]/80 text-white font-bold border-0 gap-1.5 uppercase tracking-wide text-xs">
               <Link href="/donate">
                 Get Involved
               </Link>
             </Button>
+
+            {/* Admin user menu */}
+            {user ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="w-8 h-8 rounded-full bg-[#0033FF]/30 border border-[#0033FF]/50 flex items-center justify-center text-white hover:bg-[#0033FF]/50 transition-colors"
+                  aria-label="Admin menu"
+                >
+                  <User className="h-4 w-4" />
+                </button>
+                {userMenuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setUserMenuOpen(false)} />
+                    <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-gray-100">
+                        <p className="text-xs font-medium text-gray-900 truncate">{user.email}</p>
+                        <p className="text-[10px] text-gray-400">Administrator</p>
+                      </div>
+                      <Link
+                        href="/admin/dashboard"
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <Settings className="h-4 w-4 text-gray-400" />
+                        Admin Panel
+                      </Link>
+                      <button
+                        onClick={handleSignOut}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors w-full text-left"
+                      >
+                        <LogOut className="h-4 w-4 text-gray-400" />
+                        Sign Out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/admin/login"
+                className="text-white/40 hover:text-white/70 text-xs font-medium transition-colors"
+              >
+                Admin
+              </Link>
+            )}
           </div>
 
           {/* Mobile toggle */}
@@ -90,13 +153,39 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <div className="pt-3 pb-1">
+            <div className="pt-3 pb-1 space-y-2">
               <Button asChild className="w-full bg-[#0033FF] hover:bg-[#0033FF]/80 text-white border-0 gap-1.5 font-bold">
                 <Link href="/donate" onClick={() => setMobileOpen(false)}>
                   <Heart className="h-4 w-4" />
                   Donate Now
                 </Link>
               </Button>
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/admin/dashboard"
+                    className="flex-1 flex items-center gap-2 px-3 py-2.5 rounded-md text-sm text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    onClick={() => setMobileOpen(false)}
+                  >
+                    <Settings className="h-4 w-4" />
+                    Admin Panel
+                  </Link>
+                  <button
+                    onClick={handleSignOut}
+                    className="px-3 py-2.5 rounded-md text-sm text-white/40 hover:text-white hover:bg-white/10 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/admin/login"
+                  className="block px-3 py-2.5 rounded-md text-sm text-white/40 hover:text-white/60 transition-colors text-center"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Admin Login
+                </Link>
+              )}
             </div>
           </div>
         </div>

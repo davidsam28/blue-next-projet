@@ -8,15 +8,18 @@ interface HeroSectionProps {
   subheadline: string
   ctaPrimary: string
   ctaSecondary: string
+  heroImage?: string
 }
 
-export function HeroSection({ headline, subheadline, ctaPrimary, ctaSecondary }: HeroSectionProps) {
+const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1519683384663-a1626f9a0519?w=1920&q=80'
+
+export function HeroSection({ headline, subheadline, ctaPrimary, ctaSecondary, heroImage }: HeroSectionProps) {
   return (
     <section className="relative min-h-[100vh] flex items-center bg-black overflow-hidden" aria-label="Hero">
       {/* Background studio image with overlay */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=80"
+          src={heroImage || DEFAULT_HERO_IMAGE}
           alt="Professional recording studio with audio mixing console"
           fill
           className="object-cover"

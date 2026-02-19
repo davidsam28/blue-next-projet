@@ -5,15 +5,18 @@ import { Button } from '@/components/ui/button'
 
 interface DonateCTAProps {
   impactNote: string
+  partnerImage?: string
 }
 
-export function DonateCTA({ impactNote }: DonateCTAProps) {
+const DEFAULT_PARTNER_IMAGE = 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=1920&q=80'
+
+export function DonateCTA({ impactNote, partnerImage }: DonateCTAProps) {
   return (
     <section className="relative section-padding overflow-hidden" aria-labelledby="donate-cta-title">
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=1920&q=80"
+          src={partnerImage || DEFAULT_PARTNER_IMAGE}
           alt="Youth collaborating in creative studio environment"
           fill
           className="object-cover"

@@ -6,6 +6,7 @@ import { useState } from 'react'
 import {
   LayoutDashboard, DollarSign, Users, Mail, FileText,
   Settings, LogOut, Heart, Plus, UserCog, BookOpen, Menu, X,
+  Globe, PaintBucket,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -20,6 +21,15 @@ const NAV_SECTIONS = [
     ],
   },
   {
+    label: 'Website',
+    items: [
+      { href: '/admin/website', icon: PaintBucket, label: 'Website Editor' },
+      { href: '/admin/programs', icon: BookOpen, label: 'Programs' },
+      { href: '/admin/team', icon: UserCog, label: 'Team Members' },
+      { href: '/admin/content', icon: FileText, label: 'Raw Content' },
+    ],
+  },
+  {
     label: 'Fundraising',
     items: [
       { href: '/admin/donations', icon: DollarSign, label: 'Donations' },
@@ -31,14 +41,6 @@ const NAV_SECTIONS = [
     label: 'Communications',
     items: [
       { href: '/admin/emails', icon: Mail, label: 'Email Donors' },
-    ],
-  },
-  {
-    label: 'Content',
-    items: [
-      { href: '/admin/content', icon: FileText, label: 'Page Content' },
-      { href: '/admin/programs', icon: BookOpen, label: 'Programs' },
-      { href: '/admin/team', icon: UserCog, label: 'Team Members' },
     ],
   },
   {
@@ -71,7 +73,7 @@ export function AdminSidebar() {
             BN
           </div>
           <div>
-            <p className="text-white font-semibold text-sm leading-tight">Blue Next Projet</p>
+            <p className="text-white font-semibold text-sm leading-tight">Blue Next Project</p>
             <p className="text-blue-300 text-xs">Admin Panel</p>
           </div>
         </Link>
@@ -119,7 +121,7 @@ export function AdminSidebar() {
           target="_blank"
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-blue-300 hover:text-white hover:bg-white/10 transition-colors"
         >
-          <Heart className="h-4 w-4 shrink-0" />
+          <Globe className="h-4 w-4 shrink-0" />
           View Public Site
         </Link>
         <button

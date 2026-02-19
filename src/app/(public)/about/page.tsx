@@ -24,7 +24,7 @@ export default function AboutPage() {
       <section className="relative min-h-[60vh] flex items-center bg-black overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=1920&q=80"
+            src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=80"
             alt="Audio mixing board in professional recording studio"
             fill
             className="object-cover"
@@ -57,7 +57,7 @@ export default function AboutPage() {
             </div>
             <div className="relative h-[450px] rounded-2xl overflow-hidden">
               <Image
-                src="https://images.unsplash.com/photo-1519508234439-4f23643a02f1?w=800&q=80"
+                src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800&q=80"
                 alt="Young person working at professional audio console"
                 fill
                 className="object-cover"
@@ -161,7 +161,7 @@ export default function AboutPage() {
         </div>
         <div className="relative overflow-hidden">
           <Image
-            src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80"
+            src="https://images.unsplash.com/photo-1598520106830-a4c46c286093?w=600&q=80"
             alt="Microphone in studio setting"
             fill
             className="object-cover hover:scale-105 transition-transform duration-500"
@@ -170,7 +170,7 @@ export default function AboutPage() {
         </div>
         <div className="relative overflow-hidden">
           <Image
-            src="https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=600&q=80"
+            src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&q=80"
             alt="Professional studio headphones on mixing desk"
             fill
             className="object-cover hover:scale-105 transition-transform duration-500"
