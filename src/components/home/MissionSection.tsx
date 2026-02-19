@@ -41,7 +41,7 @@ const DEFAULT_MARQUEE = [
   'Trauma-Informed Production', 'Community Impact', 'Violence Prevention', 'Safe Creative Spaces',
 ]
 
-const DEFAULT_NEXT_GEN_IMAGE = 'https://images.unsplash.com/photo-1598520106830-a4c46c286093?w=800&q=80'
+const DEFAULT_NEXT_GEN_IMAGE = 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80'
 
 export function MissionSection({ title, body, stats, nextGenImage, marqueeItems }: MissionSectionProps) {
   const marquee = marqueeItems?.length ? marqueeItems : DEFAULT_MARQUEE

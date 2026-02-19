@@ -11,7 +11,7 @@ interface HeroSectionProps {
   heroImage?: string
 }
 
-const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1519683384663-a1626f9a0519?w=1920&q=80'
+const DEFAULT_HERO_IMAGE = 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1920&q=80'
 
 export function HeroSection({ headline, subheadline, ctaPrimary, ctaSecondary, heroImage }: HeroSectionProps) {
   return (

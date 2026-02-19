@@ -161,7 +161,7 @@ export default function AboutPage() {
         </div>
         <div className="relative overflow-hidden">
           <Image
-            src="https://images.unsplash.com/photo-1598520106830-a4c46c286093?w=600&q=80"
+            src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80"
             alt="Microphone in studio setting"
             fill
             className="object-cover hover:scale-105 transition-transform duration-500"
