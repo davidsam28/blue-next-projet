@@ -45,7 +45,7 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
-  /* Blue Next Projet brand colors */
+  /* Blue Next Project brand colors */
   --color-brand: #0033FF;
   --color-brand-dark: #001A80;
   --color-brand-light: #E6EBFF;
@@ -53,22 +53,18 @@
 
 :root {
   --radius: 0.5rem;
-  /* Brand: Blue #0033FF */
   --background: oklch(1 0 0);
   --foreground: oklch(0.14 0.04 264);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.14 0.04 264);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.14 0.04 264);
-  /* Primary = brand blue #0033FF */
   --primary: oklch(0.46 0.28 264);
   --primary-foreground: oklch(1 0 0);
-  /* Secondary = dark blue #001A80 */
   --secondary: oklch(0.25 0.22 264);
   --secondary-foreground: oklch(1 0 0);
   --muted: oklch(0.97 0.005 264);
   --muted-foreground: oklch(0.55 0.04 264);
-  /* Accent = light blue #E6EBFF */
   --accent: oklch(0.95 0.04 264);
   --accent-foreground: oklch(0.25 0.22 264);
   --destructive: oklch(0.577 0.245 27.325);
@@ -132,7 +128,7 @@
     @apply bg-background text-foreground antialiased;
   }
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-bold tracking-tight;
   }
 }
 
@@ -144,9 +140,27 @@
     background: linear-gradient(135deg, #E6EBFF 0%, #ffffff 100%);
   }
   .section-padding {
-    @apply py-16 md:py-24;
+    @apply py-20 md:py-28;
   }
   .container-narrow {
     @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .text-headline {
+    @apply text-5xl sm:text-6xl lg:text-7xl font-black tracking-tighter leading-[0.95];
+  }
+  .text-display {
+    @apply text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.0];
+  }
+  .text-section {
+    @apply text-3xl sm:text-4xl font-black tracking-tight leading-tight;
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 30s linear infinite;
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
 }

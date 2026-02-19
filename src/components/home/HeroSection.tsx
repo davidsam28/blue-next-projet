@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { ArrowRight, Heart, Play } from 'lucide-react'
+import Image from 'next/image'
+import { ArrowRight, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface HeroSectionProps {
@@ -11,43 +12,40 @@ interface HeroSectionProps {
 
 export function HeroSection({ headline, subheadline, ctaPrimary, ctaSecondary }: HeroSectionProps) {
   return (
-    <section
-      className="relative overflow-hidden min-h-[90vh] flex items-center"
-      aria-label="Hero"
-    >
-      {/* Background */}
-      <div className="absolute inset-0 brand-gradient" aria-hidden="true" />
+    <section className="relative min-h-[100vh] flex items-center bg-black overflow-hidden" aria-label="Hero">
+      {/* Background studio image with overlay */}
+      <div className="absolute inset-0">
+        <Image
+          src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=80"
+          alt="Professional recording studio with audio mixing console"
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+      </div>
 
-      {/* Decorative grid pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)`,
-          backgroundSize: '60px 60px',
-        }}
-        aria-hidden="true"
-      />
-
-      {/* Decorative circles */}
-      <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-white/5 blur-3xl" aria-hidden="true" />
-      <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#0033FF]/30 blur-3xl" aria-hidden="true" />
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-        <div className="max-w-3xl">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 bg-white/10 text-white/90 text-sm font-medium mb-8 border border-white/20">
-            <span className="w-2 h-2 rounded-full bg-[#E6EBFF] animate-pulse" />
-            Nonprofit Organization
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+        <div className="max-w-4xl">
+          {/* Top labels */}
+          <div className="flex items-center gap-4 mb-8">
+            <span className="text-xs font-bold text-[#0033FF] uppercase tracking-[0.2em] bg-white/10 backdrop-blur-sm px-4 py-2 border border-white/20">
+              Chicago Youth Media
+            </span>
+            <span className="text-xs font-bold text-white/60 uppercase tracking-[0.2em]">
+              501(c)(3) Nonprofit
+            </span>
           </div>
 
           {/* Headline */}
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-[1.05] tracking-tight mb-6">
+          <h1 className="text-6xl sm:text-7xl lg:text-8xl xl:text-9xl font-black text-white tracking-tighter leading-[0.9] mb-8">
             {headline}
           </h1>
 
           {/* Subheadline */}
-          <p className="text-xl text-blue-100/90 leading-relaxed max-w-xl mb-10">
+          <p className="text-xl sm:text-2xl text-white/80 leading-relaxed max-w-2xl mb-12 font-light">
             {subheadline}
           </p>
 
@@ -56,40 +54,43 @@ export function HeroSection({ headline, subheadline, ctaPrimary, ctaSecondary }:
             <Button
               asChild
               size="lg"
-              className="bg-white text-[#001A80] hover:bg-blue-50 font-semibold text-base h-12 px-8 gap-2 shadow-lg"
+              className="bg-[#0033FF] hover:bg-[#0033FF]/90 text-white font-bold text-base h-14 px-10 gap-3 shadow-2xl shadow-[#0033FF]/30"
             >
               <Link href="/donate">
-                <Heart className="h-4 w-4 fill-[#0033FF] text-[#0033FF]" />
+                <Heart className="h-5 w-5 fill-white" />
                 {ctaPrimary}
               </Link>
             </Button>
             <Button
               asChild
               size="lg"
-              variant="outline"
-              className="border-white/30 text-white hover:bg-white/10 hover:text-white bg-transparent font-medium text-base h-12 px-8 gap-2"
+              className="bg-white/10 backdrop-blur-sm border border-white/30 text-white hover:bg-white/20 font-semibold text-base h-14 px-10 gap-3"
             >
               <Link href="/about">
                 {ctaSecondary}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>
           </div>
 
-          {/* Trust indicators */}
-          <div className="mt-14 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="h-px flex-1 bg-white/10 hidden sm:block" />
-            <div className="flex items-center gap-6 text-sm text-blue-200">
-              <span className="flex items-center gap-1.5">
-                <span className="text-white font-semibold">501(c)(3)</span> Registered Nonprofit
-              </span>
-              <span className="w-1 h-1 rounded-full bg-white/30 hidden sm:block" />
-              <span className="flex items-center gap-1.5">
-                Tax-Deductible Donations
-              </span>
-            </div>
+          {/* Trust bar */}
+          <div className="mt-16 flex flex-wrap items-center gap-8 text-sm text-white/50">
+            <span className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#0033FF]" />
+              <span className="font-semibold text-white/80">Clear Ear Studios</span> — Chicago, IL
+            </span>
+            <span className="hidden sm:block w-px h-4 bg-white/20" />
+            <span>Impacting Lives Since 2024</span>
+            <span className="hidden sm:block w-px h-4 bg-white/20" />
+            <span>Tax-Deductible Donations</span>
           </div>
         </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/40 animate-bounce">
+        <span className="text-[10px] uppercase tracking-widest font-semibold">Scroll</span>
+        <div className="w-px h-8 bg-white/30" />
       </div>
     </section>
   )

@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { HeroSection } from '@/components/home/HeroSection'
 import { MissionSection } from '@/components/home/MissionSection'
-import { SocialFeedSection } from '@/components/home/SocialFeedSection'
 import { DonateCTA } from '@/components/home/DonateCTA'
 
 async function getHomeContent() {
@@ -28,42 +27,38 @@ async function getHomeContent() {
 }
 
 export default async function HomePage() {
-  const { contentMap, settingsMap } = await getHomeContent()
+  const { contentMap } = await getHomeContent()
 
   const stats = [
     {
-      number: contentMap.impact_stat_1_number ?? '500+',
-      label: contentMap.impact_stat_1_label ?? 'Individuals Served',
+      number: contentMap.impact_stat_1_number ?? '150+',
+      label: contentMap.impact_stat_1_label ?? 'Annual Youth Participants',
     },
     {
-      number: contentMap.impact_stat_2_number ?? '12+',
-      label: contentMap.impact_stat_2_label ?? 'Community Programs',
+      number: contentMap.impact_stat_2_number ?? '92%',
+      label: contentMap.impact_stat_2_label ?? 'Creative Skill Advancement',
     },
     {
-      number: contentMap.impact_stat_3_number ?? '5+',
-      label: contentMap.impact_stat_3_label ?? 'Years of Service',
+      number: contentMap.impact_stat_3_number ?? '100%',
+      label: contentMap.impact_stat_3_label ?? 'Safe Creative Environment',
     },
   ]
 
   return (
     <>
       <HeroSection
-        headline={contentMap.hero_headline ?? 'Healing Through Creative Expression'}
-        subheadline={contentMap.hero_subheadline ?? 'Blue Next Projet harnesses the power of media arts to support trauma-informed healing and community empowerment.'}
-        ctaPrimary={contentMap.hero_cta_primary ?? 'Make a Donation'}
-        ctaSecondary={contentMap.hero_cta_secondary ?? 'Learn About Our Work'}
+        headline={contentMap.hero_headline ?? 'Amplify the Next Creative'}
+        subheadline={contentMap.hero_subheadline ?? 'Through trauma-informed training and career-focused programs, Blue Next Project equips Chicago youth with technical skills and industry guidance to tell their own stories and thrive in the digital media world.'}
+        ctaPrimary={contentMap.hero_cta_primary ?? 'Partner With Us'}
+        ctaSecondary={contentMap.hero_cta_secondary ?? 'Our Programs'}
       />
       <MissionSection
-        title={contentMap.mission_title ?? 'Our Mission'}
-        body={contentMap.mission_body ?? 'Blue Next Projet is a nonprofit organization dedicated to the intersection of trauma-informed care and media arts.'}
+        title={contentMap.mission_title ?? 'Our Programs'}
+        body={contentMap.mission_body ?? 'Advancing Chicago youth through media arts and audio production.'}
         stats={stats}
       />
-      <SocialFeedSection
-        instagramHandle={settingsMap.instagram_handle || undefined}
-        facebookUrl={settingsMap.facebook_url || undefined}
-      />
       <DonateCTA
-        impactNote={contentMap.impact_note ?? 'Every dollar you donate directly supports programming, resources, and outreach for individuals and communities impacted by trauma.'}
+        impactNote={contentMap.impact_note ?? 'We collaborate with grant funders, foundations, and community organizations to expand opportunities in media arts.'}
       />
     </>
   )

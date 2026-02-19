@@ -15,25 +15,25 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Blue Next Projet — Trauma Informed Media Arts',
-    template: '%s | Blue Next Projet',
+    default: 'Blue Next Project — Chicago Youth Media Arts & Audio Production',
+    template: '%s | Blue Next Project',
   },
   description:
-    'Blue Next Projet is a nonprofit organization harnessing the transformative power of media arts to support trauma-informed healing and community empowerment.',
-  keywords: ['trauma informed', 'media arts', 'nonprofit', 'healing', 'community', 'Blue Next Projet'],
+    'Blue Next Project is a Chicago-based 501(c)(3) nonprofit equipping youth with professional training in media arts, audio production, and digital storytelling through trauma-informed education.',
+  keywords: ['Chicago youth media arts', 'audio production training', 'trauma-informed education', 'nonprofit', 'workforce development', 'Blue Next Project', 'Clear Ear Studios'],
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'Blue Next Projet',
-    title: 'Blue Next Projet — Trauma Informed Media Arts',
+    siteName: 'Blue Next Project',
+    title: 'Blue Next Project — Chicago Youth Media Arts & Audio Production',
     description:
-      'Harnessing the transformative power of media arts to support trauma-informed healing.',
+      'Equipping Chicago youth with professional training in media arts, audio production, and digital storytelling.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blue Next Projet — Trauma Informed Media Arts',
+    title: 'Blue Next Project — Chicago Youth Media Arts',
     description:
-      'Harnessing the transformative power of media arts to support trauma-informed healing.',
+      'Equipping Chicago youth with professional training in media arts and audio production.',
   },
   robots: {
     index: true,
