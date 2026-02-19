@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { SettingsForm } from '@/components/admin/SettingsForm'
+import { ChangePasswordForm } from '@/components/admin/ChangePasswordForm'
 
 export const metadata: Metadata = { title: 'Settings — Admin' }
 
@@ -20,12 +21,22 @@ export default async function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Site Settings</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Update payment info, social media links, and contact details.
+          Update payment info, social media links, contact details, and account security.
         </p>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
         <SettingsForm settings={settings} />
+      </div>
+
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">
+          Account Security
+        </h3>
+        <p className="text-sm text-gray-400 mb-4">
+          Change your admin password. You will stay logged in after changing.
+        </p>
+        <ChangePasswordForm />
       </div>
     </div>
   )

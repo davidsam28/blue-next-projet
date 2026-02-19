@@ -23,8 +23,14 @@ export function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => setUser(data.user))
+    try {
+      const supabase = createClient()
+      supabase.auth.getUser()
+        .then(({ data }) => setUser(data.user))
+        .catch(() => { /* no auth session — expected for public visitors */ })
+    } catch {
+      /* supabase client init failed — skip auth check */
+    }
   }, [])
 
   async function handleSignOut() {
