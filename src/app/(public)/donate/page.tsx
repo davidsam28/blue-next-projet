@@ -7,6 +7,8 @@ import { CashAppInfo } from '@/components/donate/CashAppInfo'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CreditCard, Shield, Heart, CheckCircle2 } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Donate',
   description: 'Support Blue Next Projet\'s trauma-informed media arts programming. Donate via credit card (Stripe), Zelle, or Cash App.',

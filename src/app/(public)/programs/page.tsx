@@ -5,6 +5,8 @@ import { ArrowRight, Film, Mic, Camera, Users } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Programs',
   description: 'Explore Blue Next Projet\'s trauma-informed media arts programs — healing, empowering, and community-building through creative expression.',

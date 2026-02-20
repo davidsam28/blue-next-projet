@@ -28,6 +28,24 @@ interface SectionConfig {
   imageFolder?: string
 }
 
+// Default values that match what the public site renders when DB has no entry
+const DEFAULTS: Record<string, string> = {
+  'home::hero_headline': 'Amplify the Next Creative',
+  'home::hero_subheadline': 'Through trauma-informed training and career-focused programs, Blue Next Project equips Chicago youth with technical skills and industry guidance to tell their own stories and thrive in the digital media world.',
+  'home::hero_image': 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1920&q=80',
+  'home::hero_cta_primary': 'Partner With Us',
+  'home::hero_cta_secondary': 'Our Programs',
+  'home::mission_title': 'Our Programs',
+  'home::mission_body': 'Advancing Chicago youth through media arts and audio production.',
+  'home::impact_stat_1_number': '150+',
+  'home::impact_stat_1_label': 'Annual Youth Participants',
+  'home::impact_stat_2_number': '92%',
+  'home::impact_stat_2_label': 'Creative Skill Advancement',
+  'home::impact_stat_3_number': '100%',
+  'home::impact_stat_3_label': 'Safe Creative Environment',
+  'home::impact_note': 'We collaborate with grant funders, foundations, and community organizations to expand opportunities in media arts.',
+}
+
 const PAGE_CONFIGS: { id: string; label: string; icon: typeof Home; sections: SectionConfig[] }[] = [
   {
     id: 'home',
@@ -143,7 +161,8 @@ export function WebsiteEditor({ initialContent, initialSettings }: WebsiteEditor
   }
 
   function getValue(pageId: string, sectionKey: string) {
-    return content[getContentKey(pageId, sectionKey)] ?? ''
+    const key = getContentKey(pageId, sectionKey)
+    return content[key] ?? DEFAULTS[key] ?? ''
   }
 
   function setValue(pageId: string, sectionKey: string, value: string) {

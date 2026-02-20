@@ -81,6 +81,132 @@ export interface AdminEmailLog {
   status: string
 }
 
+// Enrollment Types
+export type EnrollmentStatus = 'pending' | 'approved' | 'enrolled' | 'waitlisted' | 'declined'
+export type ExperienceLevel = 'none' | 'beginner' | 'intermediate' | 'advanced'
+
+export interface SocialLinks {
+  instagram?: string
+  tiktok?: string
+  soundcloud?: string
+  youtube?: string
+  portfolio?: string
+}
+
+export interface Enrollment {
+  id: string
+  created_at: string
+  updated_at: string
+  first_name: string
+  last_name: string
+  email: string
+  phone: string | null
+  age: number | null
+  school: string | null
+  address: string | null
+  city: string | null
+  state: string | null
+  zip: string | null
+  interests: string[] | null
+  experience_level: ExperienceLevel | null
+  social_links: SocialLinks
+  music_links: string | null
+  how_heard: string | null
+  additional_notes: string | null
+  status: EnrollmentStatus
+  reviewed_by: string | null
+  reviewed_at: string | null
+}
+
+// LRC Types
+export type LrcStatus = 'draft' | 'published' | 'archived'
+export type LrcDifficulty = 'beginner' | 'intermediate' | 'advanced'
+export type LrcSectionContentType = 'reading' | 'video'
+
+export interface LrcPost {
+  id: string
+  title: string
+  slug: string
+  excerpt: string | null
+  content: string | null
+  cover_image: string | null
+  category: string | null
+  tags: string[]
+  author: string | null
+  read_time_minutes: number
+  status: LrcStatus
+  is_featured: boolean
+  sort_order: number
+  created_at: string
+  updated_at: string
+  published_at: string | null
+}
+
+export interface LrcClass {
+  id: string
+  title: string
+  slug: string
+  description: string | null
+  cover_image: string | null
+  category: string | null
+  author: string | null
+  difficulty: LrcDifficulty
+  duration_minutes: number | null
+  status: LrcStatus
+  is_featured: boolean
+  sort_order: number
+  created_at: string
+  updated_at: string
+  published_at: string | null
+}
+
+export interface LrcClassSection {
+  id: string
+  class_id: string
+  title: string
+  content: string | null
+  content_type: LrcSectionContentType
+  video_url: string | null
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
+export interface LrcResource {
+  id: string
+  title: string
+  slug: string
+  description: string | null
+  content: string | null
+  cover_image: string | null
+  category: string | null
+  file_url: string | null
+  status: LrcStatus
+  is_featured: boolean
+  sort_order: number
+  created_at: string
+  updated_at: string
+  published_at: string | null
+}
+
+export interface LrcEvent {
+  id: string
+  title: string
+  slug: string
+  description: string | null
+  cover_image: string | null
+  location: string | null
+  event_date: string | null
+  end_date: string | null
+  registration_url: string | null
+  status: LrcStatus
+  is_featured: boolean
+  sort_order: number
+  created_at: string
+  updated_at: string
+  published_at: string | null
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -118,6 +244,11 @@ export interface Database {
         Row: AdminEmailLog
         Insert: Omit<AdminEmailLog, 'id' | 'created_at'>
         Update: Partial<AdminEmailLog>
+      }
+      enrollments: {
+        Row: Enrollment
+        Insert: Omit<Enrollment, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Enrollment, 'id' | 'created_at'>>
       }
     }
   }

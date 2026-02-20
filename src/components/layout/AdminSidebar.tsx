@@ -6,7 +6,7 @@ import { useState } from 'react'
 import {
   LayoutDashboard, DollarSign, Users, Mail, FileText,
   Settings, LogOut, Heart, Plus, UserCog, BookOpen, Menu, X,
-  Globe, PaintBucket,
+  Globe, PaintBucket, GraduationCap, ClipboardList,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -26,6 +26,7 @@ const NAV_SECTIONS = [
       { href: '/admin/website', icon: PaintBucket, label: 'Website Editor' },
       { href: '/admin/programs', icon: BookOpen, label: 'Programs' },
       { href: '/admin/team', icon: UserCog, label: 'Team Members' },
+      { href: '/admin/lrc', icon: GraduationCap, label: 'Resource Center' },
       { href: '/admin/content', icon: FileText, label: 'Raw Content' },
     ],
   },
@@ -35,6 +36,12 @@ const NAV_SECTIONS = [
       { href: '/admin/donations', icon: DollarSign, label: 'Donations' },
       { href: '/admin/donations/new', icon: Plus, label: 'Log Donation' },
       { href: '/admin/donors', icon: Users, label: 'Donors' },
+    ],
+  },
+  {
+    label: 'Enrollment',
+    items: [
+      { href: '/admin/enrollments', icon: ClipboardList, label: 'Applications' },
     ],
   },
   {

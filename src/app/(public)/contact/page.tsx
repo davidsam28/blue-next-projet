@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { Metadata } from 'next'
 import { ContactForm } from '@/components/contact/ContactForm'
 import { MapPin, Mail, Phone, Clock, ExternalLink } from 'lucide-react'

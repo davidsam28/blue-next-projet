@@ -4,6 +4,8 @@ import { PageHeader } from '@/components/common/PageHeader'
 import Image from 'next/image'
 import { User } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Our Team',
   description: 'Meet the dedicated team behind Blue Next Projet — passionate advocates for trauma-informed healing and media arts.',
