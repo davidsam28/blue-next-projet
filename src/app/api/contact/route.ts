@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { sendEmail } from '@/lib/resend'
+import { rateLimit } from '@/lib/rate-limit'
 
 function escapeHtml(str: string): string {
   return str
@@ -12,6 +13,12 @@ function escapeHtml(str: string): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? 'unknown'
+    const { success: allowed } = rateLimit(`contact:${ip}`, 5, 60 * 60 * 1000)
+    if (!allowed) {
+      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 })
+    }
+
     const body = await request.json()
     const { name, email, subject, message } = body
 

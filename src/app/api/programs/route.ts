@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
@@ -27,5 +28,7 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: 'Failed to create' }, { status: 500 })
+  revalidatePath('/programs')
+  revalidatePath('/admin/programs')
   return NextResponse.json({ data }, { status: 201 })
 }

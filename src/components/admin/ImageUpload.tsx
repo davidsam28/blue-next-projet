@@ -141,6 +141,16 @@ export function ImageUpload({ value, onChange, folder = 'general', label, aspect
               className="h-8 text-xs bg-[#0033FF] text-white"
               onClick={() => {
                 if (urlInput.trim()) {
+                  try {
+                    const parsed = new URL(urlInput.trim())
+                    if (parsed.protocol !== 'https:') {
+                      toast.error('Only HTTPS URLs are allowed')
+                      return
+                    }
+                  } catch {
+                    toast.error('Invalid URL')
+                    return
+                  }
                   onChange(urlInput.trim())
                   setUrlInput('')
                   setShowUrlInput(false)

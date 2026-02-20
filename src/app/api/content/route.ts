@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
 export async function PATCH(request: NextRequest) {
@@ -33,5 +34,6 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to save content' }, { status: 500 })
   }
 
+  revalidatePath('/', 'layout')
   return NextResponse.json({ success: true })
 }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
 export async function PATCH(
@@ -29,6 +30,8 @@ export async function PATCH(
     .single()
 
   if (error) return NextResponse.json({ error: 'Failed to update' }, { status: 500 })
+  revalidatePath('/team')
+  revalidatePath('/admin/team')
   return NextResponse.json({ data })
 }
 
@@ -43,5 +46,7 @@ export async function DELETE(
   const { id } = await params
   const { error } = await supabase.from('team_members').delete().eq('id', id)
   if (error) return NextResponse.json({ error: 'Failed to delete' }, { status: 500 })
+  revalidatePath('/team')
+  revalidatePath('/admin/team')
   return NextResponse.json({ success: true })
 }
