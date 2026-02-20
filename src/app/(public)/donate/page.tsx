@@ -47,8 +47,8 @@ export default async function DonatePage() {
     <>
       <PageHeader
         accent="Give Today"
-        title={contentMap.page_title ?? 'Support Our Mission'}
-        subtitle={contentMap.page_subtitle ?? 'Your generosity powers trauma-informed healing through media arts'}
+        title={contentMap.donate_headline ?? contentMap.page_title ?? 'Support Our Mission'}
+        subtitle={contentMap.donate_subheadline ?? contentMap.page_subtitle ?? 'Your generosity powers trauma-informed healing through media arts'}
       />
 
       <section className="section-padding bg-[#F2F2F2]">

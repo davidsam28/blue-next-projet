@@ -1,11 +1,31 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Loader2, Lock, Eye, EyeOff } from 'lucide-react'
+
+type PasswordStrength = 'Weak' | 'Medium' | 'Strong'
+
+function getPasswordStrength(password: string): { label: PasswordStrength; score: number } {
+  let score = 0
+  if (password.length >= 12) score++
+  if (/[A-Z]/.test(password)) score++
+  if (/[0-9]/.test(password)) score++
+  if (/[^A-Za-z0-9]/.test(password)) score++
+
+  if (score <= 1) return { label: 'Weak', score }
+  if (score <= 2) return { label: 'Medium', score }
+  return { label: 'Strong', score }
+}
+
+const strengthColors: Record<PasswordStrength, { bar: string; text: string }> = {
+  Weak: { bar: 'bg-red-500', text: 'text-red-600' },
+  Medium: { bar: 'bg-yellow-500', text: 'text-yellow-600' },
+  Strong: { bar: 'bg-green-500', text: 'text-green-600' },
+}
 
 export function ChangePasswordForm() {
   const [newPassword, setNewPassword] = useState('')
@@ -13,11 +33,13 @@ export function ChangePasswordForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [saving, setSaving] = useState(false)
 
+  const strength = useMemo(() => getPasswordStrength(newPassword), [newPassword])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters')
+    if (newPassword.length < 12) {
+      toast.error('Password must be at least 12 characters')
       return
     }
 
@@ -60,10 +82,10 @@ export function ChangePasswordForm() {
             type={showPassword ? 'text' : 'password'}
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Enter new password (min 6 characters)"
+            placeholder="Enter new password (min 12 characters)"
             className="pl-10 pr-10"
             required
-            minLength={6}
+            minLength={12}
             autoComplete="new-password"
           />
           <button
@@ -75,6 +97,23 @@ export function ChangePasswordForm() {
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>
         </div>
+        {newPassword && (
+          <div className="space-y-1.5 pt-1">
+            <div className="flex gap-1">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className={`h-1.5 flex-1 rounded-full transition-colors ${
+                    i <= strength.score ? strengthColors[strength.label].bar : 'bg-gray-200'
+                  }`}
+                />
+              ))}
+            </div>
+            <p className={`text-xs font-medium ${strengthColors[strength.label].text}`}>
+              {strength.label}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="space-y-1.5">
@@ -89,7 +128,7 @@ export function ChangePasswordForm() {
             placeholder="Confirm new password"
             className="pl-10"
             required
-            minLength={6}
+            minLength={12}
             autoComplete="new-password"
           />
         </div>

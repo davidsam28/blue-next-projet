@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -24,6 +24,7 @@ const SUBJECTS = [
 export function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [subject, setSubject] = useState('')
+  const honeypotRef = useRef<HTMLInputElement>(null)
 
   const {
     register,
@@ -40,7 +41,7 @@ export function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, subject }),
+        body: JSON.stringify({ ...data, subject, website: honeypotRef.current?.value ?? '' }),
       })
 
       if (!res.ok) {
@@ -64,6 +65,17 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      {/* Honeypot — hidden from real users, bots will fill it */}
+      <input
+        type="text"
+        name="website"
+        ref={honeypotRef}
+        className="hidden"
+        aria-hidden="true"
+        tabIndex={-1}
+        autoComplete="off"
+      />
+
       <div className="grid sm:grid-cols-2 gap-5">
         {/* Name */}
         <div className="space-y-1.5">

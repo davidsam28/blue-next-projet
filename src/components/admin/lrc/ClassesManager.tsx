@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { MarkdownEditor } from '../MarkdownEditor'
 import { ImageUpload } from '../ImageUpload'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -415,7 +416,12 @@ export function ClassesManager({ initialClasses }: ClassesManagerProps) {
                 )}
                 <div className="space-y-1">
                   <Label className="text-xs">Content (Markdown)</Label>
-                  <Textarea value={section.content} onChange={(e) => updateSection(idx, 'content', e.target.value)} rows={4} className="resize-y font-mono text-xs" />
+                  <MarkdownEditor
+                    value={section.content ?? ''}
+                    onChange={(v) => updateSection(idx, 'content', v)}
+                    rows={4}
+                    placeholder="Write section content in markdown..."
+                  />
                 </div>
               </div>
             ))}

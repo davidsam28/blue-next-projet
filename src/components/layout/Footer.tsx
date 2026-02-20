@@ -166,6 +166,14 @@ export function Footer() {
           <p className="text-white/30 text-xs font-semibold">
             &copy; {currentYear} Blue Next Project. A Chicago-based 501(c)(3) Nonprofit Organization. Elevating creative workforce development pathways.
           </p>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="text-white/30 hover:text-white/60 text-xs font-semibold transition-colors">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="text-white/30 hover:text-white/60 text-xs font-semibold transition-colors">
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

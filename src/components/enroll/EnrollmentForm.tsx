@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -52,6 +52,7 @@ export function EnrollmentForm() {
   const [experienceLevel, setExperienceLevel] = useState('')
   const [howHeard, setHowHeard] = useState('')
   const [selectedState, setSelectedState] = useState('')
+  const honeypotRef = useRef<HTMLInputElement>(null)
 
   const {
     register,
@@ -93,6 +94,7 @@ export function EnrollmentForm() {
         music_links: data.music_links || null,
         how_heard: howHeard || null,
         additional_notes: data.additional_notes || null,
+        website: honeypotRef.current?.value ?? '',
       }
 
       const res = await fetch('/api/enrollments', {
@@ -142,6 +144,16 @@ export function EnrollmentForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-10">
+      {/* Honeypot — hidden from real users, bots will fill it */}
+      <input
+        type="text"
+        name="website"
+        ref={honeypotRef}
+        className="hidden"
+        aria-hidden="true"
+        tabIndex={-1}
+        autoComplete="off"
+      />
 
       {/* ─── Section 1: Personal Info ─── */}
       <fieldset className="space-y-5">

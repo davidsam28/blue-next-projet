@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { SettingsForm } from '@/components/admin/SettingsForm'
 import { ChangePasswordForm } from '@/components/admin/ChangePasswordForm'
+import { ChangeEmailForm } from '@/components/admin/ChangeEmailForm'
 
 export const metadata: Metadata = { title: 'Settings — Admin' }
 
@@ -13,8 +14,14 @@ async function getSettings() {
   return Object.fromEntries((data ?? []).map((s) => [s.key, s.value]))
 }
 
+async function getUserEmail() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  return user?.email ?? ''
+}
+
 export default async function SettingsPage() {
-  const settings = await getSettings()
+  const [settings, userEmail] = await Promise.all([getSettings(), getUserEmail()])
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -27,6 +34,16 @@ export default async function SettingsPage() {
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
         <SettingsForm settings={settings} />
+      </div>
+
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">
+          Change Email
+        </h3>
+        <p className="text-sm text-gray-400 mb-4">
+          Update your admin email address. A confirmation will be sent to the new address.
+        </p>
+        <ChangeEmailForm currentEmail={userEmail} />
       </div>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8">

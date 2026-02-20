@@ -20,6 +20,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+
+    // Honeypot check — bots fill hidden fields, real users don't
+    if (body.website) {
+      return NextResponse.json({ success: true })
+    }
+
     const { name, email, subject, message } = body
 
     // Server-side validation

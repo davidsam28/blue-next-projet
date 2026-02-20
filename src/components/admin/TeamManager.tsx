@@ -123,25 +123,31 @@ export function TeamManager({ initialTeam }: TeamManagerProps) {
     if (direction === 'up' && idx <= 0) return
     if (direction === 'down' && idx >= team.length - 1) return
 
+    const prevTeam = [...team]
     const newTeam = [...team]
     const swapIdx = direction === 'up' ? idx - 1 : idx + 1
     ;[newTeam[idx], newTeam[swapIdx]] = [newTeam[swapIdx], newTeam[idx]]
 
-    setTeam(newTeam)
+    setTeam(newTeam) // Optimistic update
 
-    // Save new order
-    await Promise.all([
-      fetch(`/api/team/${newTeam[idx].id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ display_order: idx + 1 }),
-      }),
-      fetch(`/api/team/${newTeam[swapIdx].id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ display_order: swapIdx + 1 }),
-      }),
-    ])
+    try {
+      const results = await Promise.all([
+        fetch(`/api/team/${newTeam[idx].id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ display_order: idx + 1 }),
+        }),
+        fetch(`/api/team/${newTeam[swapIdx].id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ display_order: swapIdx + 1 }),
+        }),
+      ])
+      if (results.some(r => !r.ok)) throw new Error('Failed to save order')
+    } catch {
+      setTeam(prevTeam) // Revert on failure
+      toast.error('Failed to reorder. Changes reverted.')
+    }
   }
 
   return (

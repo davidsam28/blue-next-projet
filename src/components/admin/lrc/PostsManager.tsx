@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { MarkdownEditor } from '../MarkdownEditor'
 import { ImageUpload } from '../ImageUpload'
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -254,12 +255,11 @@ export function PostsManager({ initialPosts }: PostsManagerProps) {
 
           <div className="space-y-1.5">
             <Label>Content (Markdown)</Label>
-            <Textarea
-              value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              rows={8}
-              className="resize-y font-mono text-sm"
-              placeholder="Write your post content here..."
+            <MarkdownEditor
+              value={formData.content ?? ''}
+              onChange={(v) => setFormData({ ...formData, content: v })}
+              rows={12}
+              placeholder="Write your post content in markdown..."
             />
           </div>
 

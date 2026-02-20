@@ -11,9 +11,9 @@ export async function POST(request: NextRequest) {
 
   const { newPassword } = await request.json()
 
-  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 12) {
     return NextResponse.json(
-      { error: 'Password must be at least 6 characters' },
+      { error: 'Password must be at least 12 characters' },
       { status: 400 }
     )
   }

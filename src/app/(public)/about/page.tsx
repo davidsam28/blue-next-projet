@@ -5,34 +5,71 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, Shield, Zap, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { createClient } from '@/lib/supabase/server'
 
 export const metadata: Metadata = {
   title: 'About Us',
   description: 'Learn about Blue Next Project — a Chicago-based nonprofit providing youth with safe, creative spaces to explore media arts and audio production.',
 }
 
-const TEAM = [
-  { name: 'Brian Bolton', title: 'Executive Director & Founder' },
-  { name: 'Millard Robbins', title: 'Director of Trauma-Informed Programs' },
-  { name: 'Ryan Baggett', title: 'Head of Audio Production & Engineering' },
-  { name: 'Roni Bolton', title: 'Administrative Director' },
-  { name: 'John Bolton', title: 'Creative Director' },
-]
+async function getAboutContent() {
+  const supabase = await createClient()
 
-export default function AboutPage() {
+  const { data: content } = await supabase
+    .from('site_content')
+    .select('section, content')
+    .eq('page', 'about')
+
+  const contentMap = Object.fromEntries(
+    (content ?? []).map((c) => [c.section, c.content])
+  )
+
+  return { contentMap }
+}
+
+async function getTeamMembers() {
+  const supabase = await createClient()
+
+  const { data } = await supabase
+    .from('team_members')
+    .select('*')
+    .eq('is_active', true)
+    .order('display_order')
+
+  return data ?? []
+}
+
+export default async function AboutPage() {
+  const [{ contentMap }, team] = await Promise.all([
+    getAboutContent(),
+    getTeamMembers(),
+  ])
+
   return (
     <>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center bg-black overflow-hidden">
         <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=80"
-            alt="Audio mixing board in professional recording studio"
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
+          {contentMap.about_hero_image ? (
+            <Image
+              src={contentMap.about_hero_image}
+              alt="Audio mixing board in professional recording studio"
+              fill
+              unoptimized
+              className="object-cover"
+              priority
+              sizes="100vw"
+            />
+          ) : (
+            <Image
+              src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=80"
+              alt="Audio mixing board in professional recording studio"
+              fill
+              className="object-cover"
+              priority
+              sizes="100vw"
+            />
+          )}
           <div className="absolute inset-0 bg-black/70" />
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28">
@@ -40,7 +77,7 @@ export default function AboutPage() {
             About Us
           </span>
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-[0.95] max-w-4xl">
-            The Roots of Blue Next Project
+            {contentMap.about_hero_headline ?? 'The Roots of Blue Next Project'}
           </h1>
         </div>
       </section>
@@ -51,20 +88,31 @@ export default function AboutPage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <p className="text-xl text-gray-700 leading-relaxed mb-6">
-                Founded in Chicago in 2024, Blue Next Project provides youth with safe, creative spaces to explore media arts and audio production on their own terms. Originally launched to address neighborhood violence, the organization has grown into a trusted hub for trauma-informed creative education and a bridge to new skills and opportunities.
+                {contentMap.origin_paragraph_1 ?? 'Founded in Chicago in 2024, Blue Next Project provides youth with safe, creative spaces to explore media arts and audio production on their own terms. Originally launched to address neighborhood violence, the organization has grown into a trusted hub for trauma-informed creative education and a bridge to new skills and opportunities.'}
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
-                By connecting creative interests with vocational pathways, we equip students with the skills and tools to pursue professional opportunities in the media industry.
+                {contentMap.origin_paragraph_2 ?? 'By connecting creative interests with vocational pathways, we equip students with the skills and tools to pursue professional opportunities in the media industry.'}
               </p>
             </div>
             <div className="relative h-[450px] rounded-2xl overflow-hidden">
-              <Image
-                src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800&q=80"
-                alt="Young person working at professional audio console"
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
-              />
+              {contentMap.origin_image ? (
+                <Image
+                  src={contentMap.origin_image}
+                  alt="Young person working at professional audio console"
+                  fill
+                  unoptimized
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              ) : (
+                <Image
+                  src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800&q=80"
+                  alt="Young person working at professional audio console"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -86,14 +134,27 @@ export default function AboutPage() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {TEAM.map((member) => (
+            {team.map((member) => (
               <div
-                key={member.name}
+                key={member.id}
                 className="bg-white p-8 rounded-2xl border-2 border-gray-100 hover:border-[#0033FF] transition-colors"
               >
-                <div className="w-16 h-16 rounded-full bg-[#0033FF]/10 flex items-center justify-center mb-5">
-                  <Users className="h-7 w-7 text-[#0033FF]" />
-                </div>
+                {member.image_url ? (
+                  <div className="w-16 h-16 rounded-full overflow-hidden mb-5 relative">
+                    <Image
+                      src={member.image_url}
+                      alt={`Photo of ${member.name}`}
+                      fill
+                      unoptimized
+                      className="object-cover"
+                      sizes="64px"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-[#0033FF]/10 flex items-center justify-center mb-5">
+                    <Users className="h-7 w-7 text-[#0033FF]" />
+                  </div>
+                )}
                 <h3 className="text-xl font-black text-black mb-1">{member.name}</h3>
                 <p className="text-[#0033FF] font-semibold text-sm">{member.title}</p>
               </div>
@@ -120,10 +181,10 @@ export default function AboutPage() {
               Methodology
             </span>
             <h2 id="methodology-heading" className="text-section text-black mb-4">
-              Creating Safe, Skill-Building Spaces for Chicago Youth
+              {contentMap.methodology_headline ?? 'Creating Safe, Skill-Building Spaces for Chicago Youth'}
             </h2>
             <p className="text-lg text-gray-500 max-w-3xl mx-auto leading-relaxed">
-              Our approach combines emotional safety with hands-on training. At our Chicago studio, media arts are more than technical skills — they&apos;re a pathway to personal and professional growth.
+              {contentMap.methodology_subtext ?? 'Our approach combines emotional safety with hands-on training. At our Chicago studio, media arts are more than technical skills \u2014 they\'re a pathway to personal and professional growth.'}
             </p>
           </div>
 
@@ -132,18 +193,22 @@ export default function AboutPage() {
               <div className="w-14 h-14 rounded-xl bg-[#0033FF] flex items-center justify-center mb-6">
                 <Shield className="h-7 w-7 text-white" />
               </div>
-              <h3 className="text-2xl font-black text-black mb-4">Physical &amp; Emotional Safety</h3>
+              <h3 className="text-2xl font-black text-black mb-4">
+                {contentMap.safety_title ?? 'Physical & Emotional Safety'}
+              </h3>
               <p className="text-gray-600 leading-relaxed text-lg">
-                We provide structured, predictable environments where youth feel secure expressing their creative voice. By emphasizing stability and respect, the studio supports focus, confidence, and consistent engagement.
+                {contentMap.safety_body ?? 'We provide structured, predictable environments where youth feel secure expressing their creative voice. By emphasizing stability and respect, the studio supports focus, confidence, and consistent engagement.'}
               </p>
             </div>
             <div className="bg-[#F7F7F7] p-10 rounded-2xl">
               <div className="w-14 h-14 rounded-xl bg-[#0033FF] flex items-center justify-center mb-6">
                 <Zap className="h-7 w-7 text-white" />
               </div>
-              <h3 className="text-2xl font-black text-black mb-4">Empowerment &amp; Agency</h3>
+              <h3 className="text-2xl font-black text-black mb-4">
+                {contentMap.empowerment_title ?? 'Empowerment & Agency'}
+              </h3>
               <p className="text-gray-600 leading-relaxed text-lg">
-                Hands-on audio production and media training build technical competence and professional confidence. Students acquire the skills and experience to pursue media careers and take ownership of their creative pathways.
+                {contentMap.empowerment_body ?? 'Hands-on audio production and media training build technical competence and professional confidence. Students acquire the skills and experience to pursue media careers and take ownership of their creative pathways.'}
               </p>
             </div>
           </div>
@@ -151,33 +216,66 @@ export default function AboutPage() {
       </section>
 
       {/* Studio Photo Strip */}
-      <section className="grid grid-cols-3 h-[300px]" aria-label="Studio photos">
+      <section className="grid grid-cols-1 sm:grid-cols-3 h-[300px]" aria-label="Studio photos">
         <div className="relative overflow-hidden">
-          <Image
-            src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80"
-            alt="Recording studio mixing console"
-            fill
-            className="object-cover hover:scale-105 transition-transform duration-500"
-            sizes="33vw"
-          />
+          {contentMap.photo_strip_1 ? (
+            <Image
+              src={contentMap.photo_strip_1}
+              alt="Recording studio mixing console"
+              fill
+              unoptimized
+              className="object-cover hover:scale-105 transition-transform duration-500"
+              sizes="(max-width: 640px) 100vw, 33vw"
+            />
+          ) : (
+            <Image
+              src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80"
+              alt="Recording studio mixing console"
+              fill
+              className="object-cover hover:scale-105 transition-transform duration-500"
+              sizes="33vw"
+            />
+          )}
         </div>
         <div className="relative overflow-hidden">
-          <Image
-            src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80"
-            alt="Microphone in studio setting"
-            fill
-            className="object-cover hover:scale-105 transition-transform duration-500"
-            sizes="33vw"
-          />
+          {contentMap.photo_strip_2 ? (
+            <Image
+              src={contentMap.photo_strip_2}
+              alt="Microphone in studio setting"
+              fill
+              unoptimized
+              className="object-cover hover:scale-105 transition-transform duration-500"
+              sizes="(max-width: 640px) 100vw, 33vw"
+            />
+          ) : (
+            <Image
+              src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80"
+              alt="Microphone in studio setting"
+              fill
+              className="object-cover hover:scale-105 transition-transform duration-500"
+              sizes="33vw"
+            />
+          )}
         </div>
         <div className="relative overflow-hidden">
-          <Image
-            src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&q=80"
-            alt="Professional studio headphones on mixing desk"
-            fill
-            className="object-cover hover:scale-105 transition-transform duration-500"
-            sizes="33vw"
-          />
+          {contentMap.photo_strip_3 ? (
+            <Image
+              src={contentMap.photo_strip_3}
+              alt="Professional studio headphones on mixing desk"
+              fill
+              unoptimized
+              className="object-cover hover:scale-105 transition-transform duration-500"
+              sizes="(max-width: 640px) 100vw, 33vw"
+            />
+          ) : (
+            <Image
+              src="https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&q=80"
+              alt="Professional studio headphones on mixing desk"
+              fill
+              className="object-cover hover:scale-105 transition-transform duration-500"
+              sizes="33vw"
+            />
+          )}
         </div>
       </section>
     </>

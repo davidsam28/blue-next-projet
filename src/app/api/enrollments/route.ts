@@ -59,6 +59,12 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+
+    // Honeypot check — bots fill hidden fields, real users don't
+    if (body.website) {
+      return NextResponse.json({ data: {} }, { status: 201 })
+    }
+
     const {
       first_name,
       last_name,

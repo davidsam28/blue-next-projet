@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ImageUpload } from './ImageUpload'
 import {
   Save, Loader2, Eye, RotateCcw, ChevronDown, ChevronUp,
-  Home, Info, BookOpen, Phone, Heart, Layout, Search, ExternalLink,
+  Home, Info, BookOpen, Phone, Heart, Layout, Search, ExternalLink, Scale,
 } from 'lucide-react'
 import type { SiteContent, SiteSetting } from '@/types'
 
@@ -110,6 +110,8 @@ const PAGE_CONFIGS: { id: string; label: string; icon: typeof Home; sections: Se
       { key: 'hours_weekend', label: 'Weekend Hours', type: 'text', placeholder: 'SATURDAY: 11:00am — 6:00pm' },
       { key: 'map_embed_url', label: 'Google Maps Embed URL', type: 'text', description: 'Get from Google Maps → Share → Embed' },
       { key: 'maps_directions_url', label: 'Google Maps Directions URL', type: 'text' },
+      { key: 'contact_email', label: 'Contact Email', type: 'text', placeholder: 'partnerships@bluenextproject.org' },
+      { key: 'contact_phone', label: 'Contact Phone', type: 'text', placeholder: '708-929-8745' },
     ],
   },
   {
@@ -135,6 +137,15 @@ const PAGE_CONFIGS: { id: string; label: string; icon: typeof Home; sections: Se
       { key: 'social_tiktok', label: 'TikTok URL', type: 'text' },
       { key: 'social_youtube', label: 'YouTube URL', type: 'text' },
       { key: 'social_linkedin', label: 'LinkedIn URL', type: 'text' },
+    ],
+  },
+  {
+    id: 'legal',
+    label: 'Legal Pages',
+    icon: Scale,
+    sections: [
+      { key: 'privacy_policy', label: 'Privacy Policy', type: 'html', description: 'Full privacy policy content. Supports HTML.' },
+      { key: 'terms_of_service', label: 'Terms of Service', type: 'html', description: 'Full terms of service content. Supports HTML.' },
     ],
   },
 ]
@@ -169,8 +180,9 @@ export function WebsiteEditor({ initialContent, initialSettings }: WebsiteEditor
     setContent(prev => ({ ...prev, [getContentKey(pageId, sectionKey)]: value }))
   }
 
-  async function saveSection(pageId: string, sectionKey: string) {
+  async function saveSection(pageId: string, sectionKey: string, overrideValue?: string) {
     const key = getContentKey(pageId, sectionKey)
+    const value = overrideValue ?? content[key] ?? ''
     setSaving(key)
     try {
       if (pageId === 'global') {
@@ -179,7 +191,7 @@ export function WebsiteEditor({ initialContent, initialSettings }: WebsiteEditor
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            settings: [{ key: sectionKey, value: content[key] ?? '', updated_at: new Date().toISOString() }],
+            settings: [{ key: sectionKey, value, updated_at: new Date().toISOString() }],
           }),
         })
         if (!res.ok) throw new Error('Failed to save setting')
@@ -190,7 +202,7 @@ export function WebsiteEditor({ initialContent, initialSettings }: WebsiteEditor
         const res = await fetch('/api/content', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ page: pageId, section: sectionKey, content: content[key] ?? '', contentType }),
+          body: JSON.stringify({ page: pageId, section: sectionKey, content: value, contentType }),
         })
         if (!res.ok) throw new Error('Failed to save')
       }
@@ -356,7 +368,11 @@ export function WebsiteEditor({ initialContent, initialSettings }: WebsiteEditor
                       {section.type === 'image' ? (
                         <ImageUpload
                           value={value}
-                          onChange={(url) => setValue(page.id, section.key, url)}
+                          onChange={(url) => {
+                            setValue(page.id, section.key, url)
+                            // Auto-save image URLs immediately to prevent data loss
+                            if (url) saveSection(page.id, section.key, url)
+                          }}
                           folder={section.imageFolder ?? page.id}
                           aspectRatio="aspect-video"
                         />

@@ -151,6 +151,26 @@ Every environment variable the application uses, where to find it, and whether i
 
 **Important:** In local development, set `NEXT_PUBLIC_APP_URL` to `http://localhost:3000`. In production on Vercel, set it to your live domain (e.g., `https://bluenextprojet.org` or `https://your-app.vercel.app`).
 
+### Complete Environment Variable Reference
+
+For quick copy-paste reference, here is every environment variable the app uses:
+
+| # | Variable | Required | Secret? | Where to Find |
+|---|----------|----------|---------|---------------|
+| 1 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | No | Supabase > Settings > API > Project URL |
+| 2 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | No | Supabase > Settings > API > anon/public key |
+| 3 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | **Yes** | Supabase > Settings > API > service_role key |
+| 4 | `STRIPE_SECRET_KEY` | Yes | **Yes** | Stripe > Developers > API Keys > Secret key |
+| 5 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Yes | No | Stripe > Developers > API Keys > Publishable key |
+| 6 | `STRIPE_WEBHOOK_SECRET` | Yes | **Yes** | Stripe > Developers > Webhooks > Signing secret |
+| 7 | `RESEND_API_KEY` | No | **Yes** | Resend > API Keys |
+| 8 | `FROM_EMAIL` | No | No | Your choice (must be on a Resend-verified domain) |
+| 9 | `FROM_NAME` | No | No | Your choice (sender display name) |
+| 10 | `NEXT_PUBLIC_APP_URL` | Yes | No | Your site's URL (e.g., `https://yourdomain.com`) |
+| 11 | `ADMIN_EMAIL` | Yes | No | The admin user's email address |
+
+Variables marked **Secret** must never be exposed in client-side code, committed to Git, or shared publicly.
+
 ---
 
 ## 4. Supabase Setup
@@ -165,20 +185,29 @@ Every environment variable the application uses, where to find it, and whether i
 6. Choose a region close to your users
 7. Click **Create new project** and wait for it to provision (about 2 minutes)
 
-### 4.2 Run the Database Migration
+### 4.2 Run the Database Migrations
 
-The migration file is located at: `supabase/migrations/001_initial_schema.sql`
+There are three migration files that must be run **in order**:
 
-To run it:
+| # | File | What It Creates |
+|---|------|----------------|
+| 1 | `supabase/migrations/001_initial_schema.sql` | Core tables, RLS policies, triggers, and seed data |
+| 2 | `supabase/migrations/002_lrc.sql` | Learning Resource Center tables (posts, classes, resources, events) |
+| 3 | `supabase/migrations/003_enrollments.sql` | Student enrollment/application table and review workflow |
+
+**To run each migration:**
 
 1. In your Supabase dashboard, click **SQL Editor** in the left sidebar
 2. Click **New query**
-3. Open the file `supabase/migrations/001_initial_schema.sql` from this project in a text editor
+3. Open the migration file from this project in a text editor
 4. Copy the **entire contents** of that file
 5. Paste it into the SQL Editor
 6. Click **Run** (or press Ctrl/Cmd + Enter)
+7. **Repeat for the next migration file** (run them in order: 001, then 002, then 003)
 
-This will create all the tables, indexes, Row Level Security policies, triggers, and seed data the app needs:
+**Important:** Run the migrations in numerical order. Migration 002 and 003 depend on functions created in 001 (such as the `update_updated_at_column()` trigger function).
+
+#### Migration 001 creates:
 
 - `donors` -- stores donor contact information
 - `donation_records` -- tracks all donations (Stripe, Zelle, Cash App)
@@ -187,6 +216,18 @@ This will create all the tables, indexes, Row Level Security policies, triggers,
 - `programs` -- program listings
 - `site_settings` -- org info, payment channels, social links
 - `admin_email_log` -- log of all broadcast emails sent
+
+#### Migration 002 creates (Learning Resource Center):
+
+- `lrc_posts` -- blog posts with categories, tags, and featured/draft/published status
+- `lrc_classes` -- courses with difficulty levels and duration
+- `lrc_class_sections` -- individual sections within a class (reading or video content)
+- `lrc_resources` -- downloadable guides and resources
+- `lrc_events` -- events with dates, locations, and registration links
+
+#### Migration 003 creates (Enrollments):
+
+- `enrollments` -- student application records with personal info, program interests, experience level, and an admin review workflow (pending/approved/enrolled/waitlisted/declined)
 
 ### 4.3 Create the Storage Bucket
 
@@ -219,6 +260,13 @@ The admin panel allows uploading images (team photos, program images, hero image
 - USING expression: `true`
 
 **File size limit:** The application enforces a 5MB limit and only allows image files (JPEG, PNG, WebP, GIF, SVG). You can optionally configure the same limits on the bucket level via the Supabase dashboard under Storage > site-images > Settings.
+
+**Important note on the Service Role Key and image uploads:**
+The application uses the `SUPABASE_SERVICE_ROLE_KEY` (via a server-side API route at `/api/upload`) to upload images to the storage bucket. This bypasses RLS policies, which means:
+- The admin panel's image upload always works regardless of storage policy configuration
+- The service role key is only used server-side and is never exposed to the browser
+- If you see upload errors, first verify that `SUPABASE_SERVICE_ROLE_KEY` is correctly set in your environment variables
+- The storage policies above are still important for public read access (so images display on the site)
 
 ### 4.4 Create the Admin User
 
@@ -566,12 +614,28 @@ All database tables have Row Level Security enabled:
 - Check that `STRIPE_WEBHOOK_SECRET` matches the signing secret shown in Stripe
 - In Stripe's webhook dashboard, check the "Attempts" tab for failed deliveries and error messages
 
-### Images are not loading
+### Image upload fails in the admin panel
+
+- Verify `SUPABASE_SERVICE_ROLE_KEY` is set correctly in your environment variables (Vercel or `.env.local`)
+- The upload API route (`/api/upload`) uses the service role key -- if it is missing or wrong, uploads will fail silently
+- Check the browser console (F12 > Console) for error messages when uploading
+- Verify the `site-images` storage bucket exists in Supabase (Section 4.3)
+- File must be under 5MB and be an image type (JPEG, PNG, WebP, GIF, or SVG)
+
+### Images are not loading on the site
 
 - Verify the `site-images` storage bucket exists in Supabase
 - Check that the bucket is set to **Public**
-- Ensure the storage policies are configured (Section 4.3)
+- Ensure the storage RLS policies are configured (Section 4.3) -- especially the SELECT policy for public read access
 - Check that `images.remotePatterns` in `next.config.ts` includes `**.supabase.co`
+- Open an image URL directly in your browser to check for 403 or 404 errors
+
+### RLS policy issues (data not appearing or permission denied)
+
+- **Public pages show no data:** Make sure migrations 001, 002, and 003 were all run successfully. The SELECT policies for public tables require records to be `is_active = true` (for team/programs) or `status = 'published'` (for LRC content)
+- **Admin panel shows empty tables:** Confirm you are logged in (check the session in the browser's Application tab > Cookies). RLS policies grant full access to `authenticated` role only
+- **Webhook donations not saving:** The webhook route uses `SUPABASE_SERVICE_ROLE_KEY` which bypasses RLS. If donations from Stripe are not appearing, the service role key is likely wrong or missing
+- **Enrollments not submitting:** The enrollments table allows `anon` INSERT. If the public enrollment form fails, check that migration 003 was run
 
 ### Emails are not sending
 
@@ -591,6 +655,29 @@ All database tables have Row Level Security enabled:
 - Check that `ADMIN_EMAIL` is set to a valid email address
 - Verify Resend is configured (Section 6)
 - Check your spam folder
+
+### LRC content not showing on the public site
+
+- Make sure migration `002_lrc.sql` was run in the SQL Editor
+- Content must have `status = 'published'` to be visible on the public site. Draft and archived items are only visible in the admin panel
+- Check the Supabase Table Editor to verify records exist and have the correct status
+
+### Enrollment form submissions not appearing in admin
+
+- Make sure migration `003_enrollments.sql` was run in the SQL Editor
+- Check the browser console for errors when submitting the form
+- Verify in Supabase Table Editor > enrollments that records are being created
+- New submissions have `status = 'pending'` by default
+
+### Environment validation
+
+Run the setup check script to validate your environment:
+
+```bash
+node scripts/setup-check.mjs
+```
+
+This will verify that all required environment variables are set, test your Supabase connection, and confirm the storage bucket exists. See the script output for detailed diagnostics.
 
 ---
 

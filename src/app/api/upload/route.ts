@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 
 export async function POST(request: NextRequest) {
+  // Auth check with regular client (uses user session)
   const supabase = await createClient()
-
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  // Admin client for storage (bypasses RLS — site-images bucket has no policies)
+  const adminSupabase = await createAdminClient()
 
   const formData = await request.formData()
   const file = formData.get('file') as File | null
@@ -35,7 +38,7 @@ export async function POST(request: NextRequest) {
   const arrayBuffer = await file.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
 
-  const { data, error } = await supabase.storage
+  const { data, error } = await adminSupabase.storage
     .from('site-images')
     .upload(filePath, buffer, {
       contentType: file.type,
@@ -47,7 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Upload failed: ${error.message}` }, { status: 500 })
   }
 
-  const { data: urlData } = supabase.storage
+  const { data: urlData } = adminSupabase.storage
     .from('site-images')
     .getPublicUrl(data.path)
 
@@ -59,14 +62,14 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   const supabase = await createClient()
-
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const adminSupabase = await createAdminClient()
   const { path } = await request.json()
   if (!path) return NextResponse.json({ error: 'Path required' }, { status: 400 })
 
-  const { error } = await supabase.storage
+  const { error } = await adminSupabase.storage
     .from('site-images')
     .remove([path])
 
