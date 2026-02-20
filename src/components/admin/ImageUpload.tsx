@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import Image from 'next/image'
-import { Upload, X, Loader2, ImageIcon } from 'lucide-react'
+import { Upload, X, Loader2, ImageIcon, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
@@ -85,6 +85,23 @@ export function ImageUpload({ value, onChange, folder = 'general', label, aspect
                 <Upload className="h-3 w-3 mr-1" />
                 Replace
               </Button>
+              <a
+                href={value}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="bg-white/90 hover:bg-white text-gray-900 text-xs"
+                  type="button"
+                >
+                  <Download className="h-3 w-3 mr-1" />
+                  Download
+                </Button>
+              </a>
               <Button
                 size="sm"
                 variant="secondary"

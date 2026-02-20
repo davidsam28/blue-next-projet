@@ -2,8 +2,9 @@ import { Metadata } from 'next'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { formatDateShort } from '@/lib/utils'
-import { Users, Mail, Phone } from 'lucide-react'
+import { Users, Mail, Phone, Download } from 'lucide-react'
 import { AdminSearch } from '@/components/admin/AdminSearch'
+import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = { title: 'Donors — Admin' }
 
@@ -43,6 +44,12 @@ export default async function DonorsPage({ searchParams }: PageProps) {
           <h1 className="text-2xl font-bold text-gray-900">Donors</h1>
           <p className="text-gray-500 text-sm mt-1">{count} total donors{q ? ` (${filtered.length} matching)` : ''}</p>
         </div>
+        <Button asChild variant="outline" size="sm" className="gap-1.5">
+          <a href="/api/donors/export" download>
+            <Download className="h-3.5 w-3.5" />
+            Export CSV
+          </a>
+        </Button>
       </div>
 
       <Suspense>

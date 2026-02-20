@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { EnrollmentsManager } from '@/components/admin/EnrollmentsManager'
+import { Download } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export const metadata: Metadata = { title: 'Enrollments — Admin' }
 
@@ -33,6 +35,12 @@ export default async function EnrollmentsPage() {
             )}
           </p>
         </div>
+        <Button asChild variant="outline" size="sm" className="gap-1.5">
+          <a href="/api/enrollments/export" download>
+            <Download className="h-3.5 w-3.5" />
+            Export CSV
+          </a>
+        </Button>
       </div>
 
       <EnrollmentsManager initialEnrollments={enrollments} />

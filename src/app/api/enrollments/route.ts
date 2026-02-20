@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { rateLimit } from '@/lib/rate-limit'
+import { sendEmail, FROM_NAME } from '@/lib/resend'
 
 // GET /api/enrollments — admin: list all enrollments with search/filter
 export async function GET(request: NextRequest) {
@@ -154,6 +155,31 @@ export async function POST(request: NextRequest) {
     }
 
     revalidatePath('/admin/enrollments')
+
+    // Send admin notification email (non-blocking — don't fail the request if email fails)
+    const adminEmail = process.env.ADMIN_EMAIL || 'bluenextproject@gmail.com'
+    sendEmail({
+      to: adminEmail,
+      subject: `New Enrollment: ${first_name.trim()} ${last_name.trim()}`,
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px;">
+          <h2 style="color: #0033FF;">New Enrollment Application</h2>
+          <table style="border-collapse: collapse; width: 100%;">
+            <tr><td style="padding: 8px; font-weight: bold; color: #333;">Name</td><td style="padding: 8px;">${first_name.trim()} ${last_name.trim()}</td></tr>
+            <tr style="background: #f9f9f9;"><td style="padding: 8px; font-weight: bold; color: #333;">Email</td><td style="padding: 8px;">${email.trim()}</td></tr>
+            ${phone ? `<tr><td style="padding: 8px; font-weight: bold; color: #333;">Phone</td><td style="padding: 8px;">${phone.trim()}</td></tr>` : ''}
+            ${parsedAge ? `<tr style="background: #f9f9f9;"><td style="padding: 8px; font-weight: bold; color: #333;">Age</td><td style="padding: 8px;">${parsedAge}</td></tr>` : ''}
+            ${school ? `<tr><td style="padding: 8px; font-weight: bold; color: #333;">School</td><td style="padding: 8px;">${school.trim()}</td></tr>` : ''}
+            ${interests?.length ? `<tr style="background: #f9f9f9;"><td style="padding: 8px; font-weight: bold; color: #333;">Interests</td><td style="padding: 8px;">${interests.join(', ')}</td></tr>` : ''}
+            ${experience_level ? `<tr><td style="padding: 8px; font-weight: bold; color: #333;">Experience</td><td style="padding: 8px; text-transform: capitalize;">${experience_level}</td></tr>` : ''}
+          </table>
+          <p style="margin-top: 20px; color: #666;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://blue-next-projet.vercel.app'}/admin/enrollments" style="color: #0033FF;">View in Admin Panel</a>
+          </p>
+          <p style="color: #999; font-size: 12px; margin-top: 16px;">— ${FROM_NAME}</p>
+        </div>
+      `,
+    }).catch((err) => console.error('[Enrollment notification email]', err))
 
     return NextResponse.json({ data }, { status: 201 })
   } catch (err) {
