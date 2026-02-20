@@ -28,8 +28,11 @@ interface SectionConfig {
   imageFolder?: string
 }
 
-// Default values that match what the public site renders when DB has no entry
+// Default values that match what the public site renders when DB has no entry.
+// These ensure the admin sees the current placeholder content (including images)
+// so they know exactly what they're replacing.
 const DEFAULTS: Record<string, string> = {
+  // ─── Home Page ───
   'home::hero_headline': 'Amplify the Next Creative',
   'home::hero_subheadline': 'Through trauma-informed training and career-focused programs, Blue Next Project equips Chicago youth with technical skills and industry guidance to tell their own stories and thrive in the digital media world.',
   'home::hero_image': 'https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=1920&q=80',
@@ -44,6 +47,33 @@ const DEFAULTS: Record<string, string> = {
   'home::impact_stat_3_number': '100%',
   'home::impact_stat_3_label': 'Safe Creative Environment',
   'home::impact_note': 'We collaborate with grant funders, foundations, and community organizations to expand opportunities in media arts.',
+  // ─── About Page ───
+  'about::about_hero_headline': 'The Roots of Blue Next Project',
+  'about::about_hero_image': 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1920&q=80',
+  'about::origin_paragraph_1': 'Founded in Chicago in 2024, Blue Next Project provides youth with safe, creative spaces to explore media arts and audio production on their own terms. Originally launched to address neighborhood violence, the organization has grown into a trusted hub for trauma-informed creative education and a bridge to new skills and opportunities.',
+  'about::origin_paragraph_2': 'By connecting creative interests with vocational pathways, we equip students with the skills and tools to pursue professional opportunities in the media industry.',
+  'about::origin_image': 'https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800&q=80',
+  'about::methodology_headline': 'Creating Safe, Skill-Building Spaces for Chicago Youth',
+  'about::methodology_subtext': 'Our approach combines emotional safety with hands-on training. At our Chicago studio, media arts are more than technical skills — they\'re a pathway to personal and professional growth.',
+  'about::safety_title': 'Physical & Emotional Safety',
+  'about::safety_body': 'We provide structured, predictable environments where youth feel secure expressing their creative voice. By emphasizing stability and respect, the studio supports focus, confidence, and consistent engagement.',
+  'about::empowerment_title': 'Empowerment & Agency',
+  'about::empowerment_body': 'Hands-on audio production and media training build technical competence and professional confidence. Students acquire the skills and experience to pursue media careers and take ownership of their creative pathways.',
+  'about::photo_strip_1': 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=80',
+  'about::photo_strip_2': 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80',
+  'about::photo_strip_3': 'https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=600&q=80',
+  // ─── Contact Page ───
+  'contact::contact_hero_headline': 'Connect with Blue Next Project',
+  'contact::studio_name': 'Clear Ear Studios',
+  'contact::studio_address': '7411 S. Stony Island Ave.',
+  'contact::studio_city': 'Chicago, IL 60649',
+  'contact::hours_weekday': 'MON — FRI: 11:00am — 8:00pm',
+  'contact::hours_weekend': 'SATURDAY: 11:00am — 6:00pm',
+  'contact::contact_email': 'partnerships@bluenextproject.org',
+  'contact::contact_phone': '708-929-8745',
+  // ─── Donate Page ───
+  'donate::donate_headline': 'Support Our Mission',
+  'donate::donate_subheadline': 'Your generosity powers trauma-informed healing through media arts',
 }
 
 const PAGE_CONFIGS: { id: string; label: string; icon: typeof Home; sections: SectionConfig[] }[] = [
@@ -150,15 +180,27 @@ const PAGE_CONFIGS: { id: string; label: string; icon: typeof Home; sections: Se
   },
 ]
 
+// Keys that live in site_settings but appear under a non-global page tab.
+// When saving, these must ALSO be written to site_settings so the public
+// page (which reads from site_settings) picks them up.
+const SETTINGS_KEYS = new Set(['contact_email', 'contact_phone'])
+
 export function WebsiteEditor({ initialContent, initialSettings }: WebsiteEditorProps) {
   const [content, setContent] = useState<Record<string, string>>(() => {
     const map: Record<string, string> = {}
     for (const c of initialContent) {
       map[`${c.page}::${c.section}`] = c.content
     }
-    // Also load settings into content map for global sections
+    // Load settings into content map for global sections
     for (const [k, v] of Object.entries(initialSettings)) {
       if (!map[`global::${k}`]) map[`global::${k}`] = v
+    }
+    // Also populate settings that appear on non-global pages (e.g. contact_email)
+    for (const [k, v] of Object.entries(initialSettings)) {
+      if (SETTINGS_KEYS.has(k)) {
+        // If the setting exists but wasn't saved to site_content yet, show it
+        if (!map[`contact::${k}`]) map[`contact::${k}`] = v
+      }
     }
     return map
   })
@@ -205,6 +247,17 @@ export function WebsiteEditor({ initialContent, initialSettings }: WebsiteEditor
           body: JSON.stringify({ page: pageId, section: sectionKey, content: value, contentType }),
         })
         if (!res.ok) throw new Error('Failed to save')
+
+        // Also sync to site_settings for keys that the public page reads from settings
+        if (SETTINGS_KEYS.has(sectionKey)) {
+          await fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              settings: [{ key: sectionKey, value, updated_at: new Date().toISOString() }],
+            }),
+          })
+        }
       }
       toast.success('Saved!')
     } catch (err) {
@@ -220,27 +273,40 @@ export function WebsiteEditor({ initialContent, initialSettings }: WebsiteEditor
     if (!page) return
 
     try {
-      const promises = page.sections.map(section => {
+      const promises = page.sections.flatMap(section => {
         const key = getContentKey(pageId, section.key)
         const value = content[key] ?? ''
-        if (!value) return Promise.resolve()
+        if (!value) return []
 
         if (pageId === 'global') {
-          return fetch('/api/settings', {
+          return [fetch('/api/settings', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               settings: [{ key: section.key, value, updated_at: new Date().toISOString() }],
             }),
-          })
+          })]
         }
 
         const contentType = section.type === 'image' ? 'image_url' : section.type === 'html' ? 'html' : 'text'
-        return fetch('/api/content', {
+        const reqs: Promise<Response>[] = [fetch('/api/content', {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ page: pageId, section: section.key, content: value, contentType }),
-        })
+        })]
+
+        // Also sync to site_settings for keys the public page reads from settings
+        if (SETTINGS_KEYS.has(section.key)) {
+          reqs.push(fetch('/api/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              settings: [{ key: section.key, value, updated_at: new Date().toISOString() }],
+            }),
+          }))
+        }
+
+        return reqs
       })
 
       await Promise.all(promises)
